@@ -10,18 +10,29 @@ on:
 
 jobs:
   deploy:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v3.3.0
+      uses: actions/checkout@v4
 
     - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1-node16
+      uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: arn:aws:iam::438207642063:role/github-actions-role
         role-duration-seconds: 900 # the ttl of the session, in seconds.
         aws-region: us-east-1
 
-    - name: Copy files to the site with the AWS CLI
+    - name: Upload index.html (no-cache)
       run: |
-        aws s3 sync . s3://trinatking.com --exclude ".git/*" --exclude ".github/*" --exclude "README.md" --exclude "architecture-diagram.drawio"
+        aws s3 cp index.html s3://ofrecord.org/index.html \
+          --content-type "text/html" \
+          --cache-control "no-cache"
+
+    - name: Sync remaining files
+      run: |
+        aws s3 sync . s3://ofrecord.org \
+          --exclude ".git/*" \
+          --exclude ".github/*" \
+          --exclude "README.md" \
+          --exclude "architecture-diagram.drawio" \
+          --exclude "index.html"
