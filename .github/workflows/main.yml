@@ -36,3 +36,10 @@ jobs:
           --exclude "README.md" \
           --exclude "architecture-diagram.drawio" \
           --exclude "index.html"
+
+    - name: Invalidate CloudFront
+      run: |
+        aws cloudfront create-invalidation \
+          --distribution-id YOUR_DISTRIBUTION_ID \
+          --paths "/" "/index.html"
+
